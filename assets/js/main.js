@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════
-   OTAKUWAVE — Main JavaScript (VERSIÓN CORREGIDA)
+   OTAKUWAVE — Main JavaScript (VERSIÓN DEFINITIVA CORREGIDA)
    ═══════════════════════════════════════════════════ */
 
 /* ──────────────────────────────────────
-   PLAYLIST (TUS 10 MP3s)
+   PLAYLIST (2 MP3s)
 ────────────────────────────────────── */
 const TRACKS = [
   { section: 'Audio Club', track: 'Club Edyn', anime: 'Night Sessions', art: 'hikari', file: 'assets/audio/0002_audio_club_edyn.mp3' },
@@ -58,7 +58,7 @@ function escapeHtml(text) {
 }
 
 /* ──────────────────────────────────────
-   LOAD TRACK (CORREGIDO Y ESTABLE)
+   LOAD TRACK (CORREGIDA - SIN DUPLICACIÓN)
 ────────────────────────────────────── */
 function loadTrack(index) {
   if (!TRACKS.length) return;
@@ -74,10 +74,10 @@ function loadTrack(index) {
 
   audioElement = new Audio(track.file);
 
-  // 🧯 MANEJO DE ERROR (CRÍTICO PARA VERCEL)
+  // Manejo de error
   audioElement.onerror = () => {
     console.warn("Error cargando audio:", track.file);
-    nextTrack(); // evita que se rompa el reproductor
+    nextTrack();
   };
 
   audioElement.addEventListener('timeupdate', updateProgress);
@@ -93,7 +93,7 @@ function loadTrack(index) {
     audioElement.volume = DOM.volSlider().value / 100;
   }
 
-  // 🧩 ACTUALIZACIÓN UI (segura)
+  // Actualizar UI
   if (DOM.section()) DOM.section().textContent = track.section;
   if (DOM.track()) DOM.track().textContent = track.track;
   if (DOM.anime()) DOM.anime().textContent = track.anime;
@@ -113,23 +113,6 @@ function loadTrack(index) {
     startWaveAnimation();
   }
 }
-  DOM.section().textContent = track.section;
-  DOM.track().textContent = track.track;
-  DOM.anime().textContent = track.anime;
-
-  const img = DOM.artImg();
-  if (img) {
-    img.src = `assets/images/avatar_${track.art}.png`;
-  }
-
-  DOM.fill().style.width = '0%';
-  DOM.elapsed().textContent = '0:00';
-
-  if (isPlaying) {
-    audioElement.play();
-    startWaveAnimation();
-  }
-}
 
 function onTrackEnd() {
   if (repeatOn) {
@@ -146,8 +129,8 @@ function updateProgress() {
   const duration = audioElement.duration;
   if (!isNaN(duration) && duration > 0) {
     const percent = (current / duration) * 100;
-    DOM.fill().style.width = percent + '%';
-    DOM.elapsed().textContent = formatTime(current);
+    if (DOM.fill()) DOM.fill().style.width = percent + '%';
+    if (DOM.elapsed()) DOM.elapsed().textContent = formatTime(current);
     
     const bars = document.querySelectorAll('.wave-bar');
     const active = Math.floor(percent / 100 * bars.length);
@@ -208,7 +191,7 @@ function seekTo(event) {
   if (!audioElement) return;
   const rect = event.currentTarget.getBoundingClientRect();
   const percent = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
-  DOM.fill().style.width = percent + '%';
+  if (DOM.fill()) DOM.fill().style.width = percent + '%';
   if (audioElement.duration) {
     audioElement.currentTime = (percent / 100) * audioElement.duration;
   }
@@ -216,12 +199,12 @@ function seekTo(event) {
 
 function toggleShuffle() {
   shuffleOn = !shuffleOn;
-  DOM.shuffle().classList.toggle('active-ctrl', shuffleOn);
+  if (DOM.shuffle()) DOM.shuffle().classList.toggle('active-ctrl', shuffleOn);
 }
 
 function toggleRepeat() {
   repeatOn = !repeatOn;
-  DOM.repeat().classList.toggle('active-ctrl', repeatOn);
+  if (DOM.repeat()) DOM.repeat().classList.toggle('active-ctrl', repeatOn);
 }
 
 /* ──────────────────────────────────────
@@ -570,7 +553,6 @@ function postFanMessage() {
   }
 }
 
-
 /* ──────────────────────────────────────
    ALTERNAR MP3 / VIDEO DESTACADO
 ────────────────────────────────────── */
@@ -586,7 +568,6 @@ function togglePlaybackMode() {
   isYouTubeMode = !isYouTubeMode;
   
   if (isYouTubeMode) {
-    // Cambiar a Video Destacado
     if (audioElement && isPlaying) {
       audioElement.pause();
       isPlaying = false;
@@ -601,7 +582,6 @@ function togglePlaybackMode() {
     toggleBtn.innerHTML = '🎵 MP3';
     toggleBtn.title = 'Cambiar a reproductor MP3';
   } else {
-    // Cambiar a MP3
     mp3PlayerWrap.style.display = 'block';
     youtubeContainer.style.display = 'none';
     toggleBtn.innerHTML = '🎬 VIDEO';
