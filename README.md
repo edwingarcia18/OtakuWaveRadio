@@ -1,235 +1,223 @@
-# OtakuWave - Radio Anime Online
+# OtakuWave — Radio Anime Online
 
-Radio anime online 24/7 donde la comunidad decide lo que suena. Proyecto desarrollado con HTML5, CSS3 y JavaScript vanilla.
+> Experiencia audiovisual interactiva de radio anime 24/7. No es una página web — es una aplicación visual inmersiva.
 
-**Autor:** Edwin Garc�a  
-**GitHub:** [github.com/edwingarcia18](https://github.com/edwingarcia18)  
-**Email:** edalgafu@gmail.com
-
-## Estado del Proyecto
-
-[![Vercel Deployment](https://img.shields.io/badge/deployment-vercel-black)](https://vercel.com)
+[![Vercel](https://img.shields.io/badge/deployment-Vercel-black?logo=vercel)](https://vercel.com)
 [![License](https://img.shields.io/badge/license-MIT-purple)](LICENSE)
+[![Three.js](https://img.shields.io/badge/Three.js-r128-blue)](https://threejs.org)
+[![HTML5](https://img.shields.io/badge/HTML5-CSS3-orange)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 
-## Tabla de Contenidos
+---
 
-- [Caracteristicas](#caracteristicas)
-- [Tecnologias](#tecnologias)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Instalacion](#instalacion)
-- [Despliegue en Vercel](#despliegue-en-vercel)
-- [Personalizacion](#personalizacion)
-- [Comandos del Chatbot](#comandos-del-chatbot)
-- [Creditos](#creditos)
+## Vista previa
 
-## Caracteristicas
+Una interfaz de radio anime inmersiva con:
+- Fondo de partículas 3D en tiempo real (Three.js / WebGL)
+- Reproductor MP3 con visualizador de audio Canvas
+- YouTube player protagonista con transición fluida
+- Chat estilo Discord con mensajes automáticos de Kaito e Hikari
+- Cursor personalizado con efecto parallax
+- Animaciones tipo Apple (cubic-bezier, stagger, reveal on scroll)
+- Diseño Dark UI con glassmorphism y acentos neon
 
-- Reproductor de audio con playlist de 10 canciones
-- Controles: play/pause, shuffle, repeat, barra de progreso
-- Waveform animado en tiempo real
-- HikariBot: chatbot con respuestas automaticas
-- Sistema de votacion "La Frecuencia Decide"
-- Secciones: Anime Hits, Otaku News, Batalla Anime, Gaming Zone, Momento Kawaii
-- Programacion diaria por franjas horarias
-- Sistema de niveles para la comunidad
-- Formulario de contacto y newsletter
-- Dise�o responsive
-- Desplegable en Vercel
+---
 
-## Tecnologias
+## Tecnologías
 
-| Tecnologia | Version | Uso |
+| Tecnología | Versión | Uso |
 |------------|---------|-----|
-| HTML5 | - | Estructura semantica |
-| CSS3 | - | Estilos y animaciones |
-| JavaScript | ES6 | Logica del reproductor y chatbot |
-| Google Fonts | - | Orbitron, Nunito |
-| Vercel | - | Hosting |
+| HTML5 / CSS3 | — | Estructura y estilos |
+| JavaScript ES6+ | — | Lógica de reproductor y chat |
+| Three.js | r128 | Campo de partículas WebGL 3D |
+| Canvas API | — | Visualizador de audio |
+| Google Fonts | — | Orbitron, Syne, JetBrains Mono |
+| Vercel | — | Hosting y CDN |
 
+---
 
-## Estructura del Proyecto
+## Estructura del proyecto
 
-otakuwave/
-├── index.html
+```
+OtakuWaveRadio/
+├── index.html                  # App completa (HTML + CSS + JS embebido)
+├── vercel.json                 # Configuración de despliegue y headers
+├── .gitignore
+├── LICENSE
 ├── README.md
-├── assets/
-│ ├── css/
-│ │ └── style.css
-│ ├── js/
-│ │ └── main.js
-│ ├── audio/
-│ │ ├── 0001_astronaut12_rocking.mp3
-│ │ ├── 0002_audio_club_edyn.mp3
-│ │ ├── 003_fassounds_kawaii_dance_upbeat_japan.mp3
-│ │ ├── 004_final_ye_mera_flow.mp3
-│ │ ├── 005_From_Now_On.mp3
-│ │ ├── 006_hitslab_anime_anime_cyberpunk.mp3
-│ │ ├── LiSA - 007_Kimetsu_no_Yaiba.mp3
-│ │ ├── 008_Kristine_Xiong_Siab_Mob_Heev.mp3
-│ │ ├── 009_phantasticbeats.mp3
-│ │ └── 010_phantasticbeats_anime.mp3
-│ ├── images/
-│ │ ├── avatar_hikari.png
-│ │ ├── avatar_akira.png
-│ │ ├── banner_hikari.jpg
-│ │ ├── banner_akira.jpg
-│ │ ├── banner_main.jpg
-│ │ └── logo_horizontal.png
-│ └── video/
-│ ├── intro_hikari.mp4
-│ └── intro_akira.mp4
-└── chat-server/
-├── server.js
-├── package.json
-└── node_modules/
+└── assets/
+    ├── audio/
+    │   ├── 0001_astronaut12_rocking.mp3
+    │   └── 0002_audio_club_edyn.mp3
+    ├── css/
+    │   └── style.css           # Referencia legacy (v1)
+    ├── js/
+    │   └── main.js             # Referencia legacy (v1)
+    └── images/
+        ├── avatar_hikari.png
+        ├── avatar_kaito.png
+        ├── banner_main.jpg
+        ├── logo-favicon.png
+        └── logo_horizontal.png
+```
 
-## Instalacion
+> **Nota:** El diseño v2 tiene CSS y JavaScript completamente embebidos en `index.html` para máxima portabilidad y rendimiento. Los archivos `assets/css/style.css` y `assets/js/main.js` son referencias del diseño original (v1).
 
-### Requisitos Previos
+---
 
-- Navegador web moderno (Chrome, Firefox, Edge, Safari)
-- Opcional: Node.js 18+ para el chat en tiempo real
+## Ejecución local
 
-### Ejecucion Local
+No requiere build ni dependencias instaladas. Solo un servidor HTTP estático:
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/edwingarcia18/otakuwave.git
-cd otakuwave
-
-# Servidor Python
+# Opción 1 — Python (recomendado, disponible en cualquier sistema)
 python3 -m http.server 8080
+# Abrir: http://localhost:8080
 
-# Servidor Node.js
+# Opción 2 — Node.js
 npx serve .
+# Abrir: http://localhost:3000
 
-# Abrir en navegador
-http://localhost:8080
+# Opción 3 — VS Code
+# Instalar extensión "Live Server" y hacer clic en "Go Live"
+```
 
+> **Importante:** Abrir `index.html` directamente con `file://` puede bloquear la carga de audio por políticas CORS del navegador. Usar siempre un servidor HTTP local.
 
+---
 
+## Despliegue en Vercel
 
-Servidor de Chat (Opcional)
-cd chat-server
-npm install
-node server.js
+### Via CLI
 
-El servidor de chat correra en http://localhost:3000
-
-
-
-Despliegue en Vercel
-Opcion 1: Via CLI
-# Instalar Vercel CLI
+```bash
 npm i -g vercel
-
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Desplegar
 vercel
+```
 
-Opcion 2: Via GitHub
-Subir el codigo a GitHub
+### Via GitHub (recomendado)
 
+```bash
+# 1. Inicializar repositorio
 git init
 git add .
-git commit -m "OtakuWave - Radio Anime Online"
-git remote add origin https://github.com/edwingarcia18/otakuwave.git
+git commit -m "feat: OtakuWave Radio v2 — Three.js + Cinematic UI"
+
+# 2. Conectar con GitHub
+git remote add origin https://github.com/TU_USUARIO/otakuwave.git
 git push -u origin main
 
-Ir a vercel.com
+# 3. En vercel.com → Import Git Repository → seleccionar el repo
+#    Vercel detecta automáticamente el proyecto estático
+#    URL resultante: https://otakuwave.vercel.app
+```
 
-Importar repositorio
+---
 
-Vercel detectara automaticamente el proyecto estatico
+## Personalización
 
-Obtendras una URL como: https://otakuwave.vercel.app
+### Agregar canciones al reproductor
 
+Editar el array `TRACKS` dentro de `index.html` (línea ~780):
 
-Personalizacion
-Agregar Canciones
-Editar assets/js/main.js:
+```javascript
 const TRACKS = [
-  // ... canciones existentes
-  { 
-    section: 'Nombre Seccion',
-    track: 'Nombre Cancion',
-    anime: 'Nombre Anime',
-    art: 'hikari', // o 'akira'
-    file: 'assets/audio/nuevo_archivo.mp3'
+  {
+    section: 'Nombre Sección',
+    track: 'Nombre Canción',
+    anime: 'Nombre Anime / Artista',
+    art: 'hikari',   // 'hikari' o 'kaito'
+    file: 'assets/audio/nueva_cancion.mp3'
   },
+  // ... más canciones
 ];
+```
 
+### Cambiar el video de YouTube
 
-Modificar Respuestas del Chatbot
-Editar window.botResponses en assets/js/main.js:
-window.botResponses = {
-  horarios: "Nuevo texto de respuesta",
-  votar: "Nuevas instrucciones",
-  cancion: "Nueva informacion",
-  secciones: "Nueva lista",
-  ayuda: "Nueva ayuda",
-  default: "Mensaje por defecto"
-};
+Buscar el `<iframe>` dentro del bloque `#youtubeLiveContainer` en `index.html`:
 
-Cambiar Colores
-Editar variables CSS en assets/css/style.css:
+```html
+<iframe src="https://www.youtube.com/embed/TU_VIDEO_ID?rel=0&modestbranding=1" ...>
+```
+
+Reemplazar `TU_VIDEO_ID` con el ID del video de YouTube deseado.
+
+### Cambiar colores del tema
+
+Editar las variables CSS al inicio de la etiqueta `<style>` en `index.html`:
+
+```css
 :root {
-  --purple: #7B2CBF;
-  --pink: #FF4D8D;
-  --blue: #00CFFF;
-  --black: #0D0D0D;
-  --card: #16161f;
-  --text: #e8e4f0;
+  --pink:   #FF4D8D;   /* Acento Hikari / primario */
+  --blue:   #00CFFF;   /* Acento Kaito / secundario */
+  --purple: #9B59FF;   /* Acento terciario */
+  --dark:   #060810;   /* Fondo principal */
 }
+```
 
-Variables CSS
-Variable	Valor	Uso
---purple	#7B2CBF	Acento principal
---purple-light	#9D4EDD	Acento secundario
---pink	#FF4D8D	Acento Hikari
---blue	#00CFFF	Acento Akira
---black	#0D0D0D	Fondo principal
---dark	#111118	Fondo secundario
---card	#16161f	Tarjetas
---card2	#1c1c28	Tarjetas secundarias
---text	#e8e4f0	Texto principal
---muted	#7a768a	Texto secundario
+### Modificar mensajes del chat
 
+Editar los objetos `MSGS` (mensajes iniciales) y `AUTOS` (mensajes automáticos) en `index.html`:
 
-Comandos del Chatbot
-Comando	Respuesta
-horarios	Muestra la programacion diaria
-votar	Explica el sistema de votacion
-cancion	Muestra la cancion actual
-secciones	Lista todas las secciones
-ayuda	Muestra los comandos disponibles
-Estructura de la Playlist
-#	Seccion	Cancion	Anime
-1	Audio Club	Club Edyn	Night Sessions
-2	Momento Kawaii	Kawaii Dance Upbeat	Japan Anime
-3	Batalla Anime	Final Ye Mera Flow	Urban Beats
-4	Morning Wave	From Now On	Epic Journey
-5	Senal Perdida	Cyberpunk Anime	Future Beats
-6	Anime Hits	Gurenge (LiSA)	Kimetsu no Yaiba
-7	Zona Fan	Siab Mob Heev	Kristine Xiong
-8	Phantastic Beats	Anime Beginnings	Intro Mix
-9	Phantastic Beats	Anime Wave	Second Wave
-10	Gaming Zone	Rocking the Anime	Astronaut Beats
-Creditos
-Rol	Nombre
-Autor y Desarrollador	Edwin Garcia
-Diseno y Estrategia	OtakuWave Team
-Tipografias	Google Fonts (Orbitron, Nunito)
-Licencia
-MIT License
+```javascript
+const MSGS = {
+  general: [
+    { name: 'Hikari', color: 'pink', av: 'hikari', text: 'Tu mensaje aquí.' },
+    { name: 'Kaito', color: 'purple', av: 'kaito', text: 'Otro mensaje.' },
+  ],
+  // lofi, battle, openings, comunidad...
+};
+```
 
-Copyright (c) 2025 Edwin Garcia
+### Ajustar densidad de partículas WebGL
 
-Contacto
-Canal	Enlace
-Email	edalgafu@gmail.com
-GitHub	github.com/edwingarcia18
-OtakuWave - Donde el anime suena sin parar.
+En la función `initThree()` dentro de `index.html`:
 
+```javascript
+const count = 2000; // Reducir para mejor rendimiento en hardware débil
+```
+
+---
+
+## Características principales
+
+- **Fondo WebGL (Three.js):** Campo de 2000 partículas 3D con movimiento fluido, reacción al cursor y fallback automático si WebGL no está disponible
+- **Reproductor MP3:** Play/pause, siguiente/anterior, shuffle, repeat, barra de progreso, visualizador Canvas con barras animadas
+- **YouTube Player:** Embed protagonista con badge "Video Destacado", botón al canal y alternancia fluida con el reproductor MP3
+- **Chat Discord:** 5 canales temáticos, mensajes automáticos de Kaito e Hikari con tiempos variables, input de usuario con respuesta automática
+- **Cursor personalizado:** Punto + anillo con suavizado independiente y hover states en elementos interactivos
+- **Reveal on scroll:** IntersectionObserver con stagger delay para entradas progresivas de cada sección
+- **Navbar dinámica:** Glassmorphism que intensifica al hacer scroll
+- **Ticker animado:** Banda de texto continuo con secciones de la radio
+- **Responsive:** Adaptado para móvil con sidebar de chat colapsada y grid de 1 columna
+
+---
+
+## Redes y contacto
+
+| Canal | Enlace |
+|-------|--------|
+| YouTube | [youtube.com/@OtakuWave-v4l](https://www.youtube.com/@OtakuWave-v4l) |
+| Facebook | [facebook.com/OtakuWave](https://www.facebook.com/profile.php?id=61589493800766) |
+| Email | otakuwave7@gmail.com |
+
+---
+
+## Créditos
+
+| Rol | Nombre |
+|-----|--------|
+| Autor y Desarrollador | Edwin Garcia |
+| Diseño UI/UX v2 | OtakuWave Team |
+| Tipografías | Google Fonts — Orbitron, Syne, JetBrains Mono |
+| Partículas 3D | Three.js r128 |
+
+---
+
+## Licencia
+
+MIT License — Copyright (c) 2025 Edwin Garcia. Ver [LICENSE](LICENSE) para detalles.
+
+---
+
+*OtakuWave · Donde el anime suena sin parar.*
