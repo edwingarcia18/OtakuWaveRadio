@@ -2,250 +2,396 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="OtakuWave — Radio Anime Online 24/7. La primera radio anime donde tú decides lo que suena.">
   <meta property="og:title" content="OtakuWave · Radio Anime Online">
   <meta property="og:description" content="Donde el anime suena sin parar.">
   <meta property="og:image" content="assets/images/banner_main.jpg">
-  
-  <!-- Favicon - Logo OtakuWave -->
-  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/logo-favicon.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/images/logo-favicon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/logo-favicon.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/logo-favicon.png">
-  <link rel="shortcut icon" href="assets/images/logo-favicon.png" type="image/png">
-  
+  <link rel="icon" type="image/png" href="assets/images/logo-favicon.png">
   <title>OtakuWave · Radio Anime Online</title>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root{--pink:#FF4D8D;--blue:#00CFFF;--purple:#9B59FF;--dark:#060810;--dark2:#0C1020;--dark3:#111828;--glass:rgba(255,255,255,0.04);--gb:rgba(255,255,255,0.08);--text:#E8EAF6;--dim:rgba(232,234,246,0.5);--gp:0 0 32px rgba(255,77,141,0.4);--gb2:0 0 32px rgba(0,207,255,0.35);--gv:0 0 32px rgba(155,89,255,0.4);--ease:cubic-bezier(.25,.46,.45,.94);--eout:cubic-bezier(0,0,.2,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Syne',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden}
+    #webgl-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+    .cursor{width:8px;height:8px;background:var(--pink);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform .15s var(--ease);mix-blend-mode:screen}
+    .cursor-ring{width:32px;height:32px;border:1px solid rgba(255,77,141,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:transform .4s var(--ease),width .3s,height .3s,border-color .3s}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:var(--dark)}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(var(--pink),var(--purple));border-radius:2px}
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:rgba(6,8,16,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);transition:all .4s var(--ease)}
+    .nav.scrolled{padding:.8rem 3rem;background:rgba(6,8,16,.92)}
+    .nav-brand{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .nav-brand-logo{height:34px;object-fit:contain;mix-blend-mode:screen;filter:brightness(1.3)}
+    .nav-links{display:flex;list-style:none;gap:.2rem}
+    .nav-links a{color:var(--dim);text-decoration:none;font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.45rem .9rem;border-radius:8px;transition:all .3s var(--ease);position:relative}
+    .nav-links a::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:1px;background:linear-gradient(90deg,var(--pink),var(--purple));transition:all .3s var(--ease)}
+    .nav-links a:hover{color:var(--text)}
+    .nav-links a:hover::after{left:10%;right:10%}
+    .nav-live{display:flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+    .live-dot{width:6px;height:6px;background:var(--pink);border-radius:50%;animation:livePulse 1.5s ease-in-out infinite;flex-shrink:0}
+    @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(255,77,141,.4)}50%{opacity:.7;transform:scale(1.4);box-shadow:0 0 0 5px rgba(255,77,141,0)}}
+    /* HERO */
+    .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 5rem;overflow:hidden}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;border:1px solid var(--gb);border-radius:100px;background:var(--glass);backdrop-filter:blur(12px);font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:2rem;animation:fadeUp .8s var(--eout) .2s both}
+    .hero-title{font-family:'Orbitron',monospace;font-size:clamp(2.6rem,8vw,7rem);font-weight:900;line-height:1.0;letter-spacing:-.02em;margin-bottom:1.5rem}
+    .hero-title .l1{display:block;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.75) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp .9s var(--eout) .3s both}
+    .hero-title .l2{display:block;background:linear-gradient(135deg,var(--pink) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp .9s var(--eout) .45s both}
+    .hero-title .l3{display:block;background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp .9s var(--eout) .6s both}
+    .hero-sub{font-size:clamp(.9rem,2vw,1.1rem);color:var(--dim);max-width:520px;line-height:1.7;animation:fadeUp .9s var(--eout) .75s both;margin-bottom:2.5rem}
+    .hero-cta{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .9s var(--eout) .9s both}
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--pink),var(--purple));color:white;text-decoration:none;border:none;border-radius:100px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;cursor:pointer;transition:all .35s var(--ease);position:relative;overflow:hidden}
+    .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .3s}
+    .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:var(--gp)}
+    .btn-primary:hover::before{opacity:1}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2.2rem;background:var(--glass);color:var(--text);text-decoration:none;border:1px solid var(--gb);border-radius:100px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .35s var(--ease);backdrop-filter:blur(12px)}
+    .btn-ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-2px);border-color:rgba(255,77,141,.4)}
+    .hero-scroll{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:fadeUp 1s var(--eout) 1.2s both}
+    .hero-scroll span{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+    .scroll-line{width:1px;height:40px;background:linear-gradient(var(--pink),transparent);animation:scrollLine 2s ease-in-out infinite}
+    @keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+    /* TICKER */
+    .ticker-bar{position:relative;z-index:2;overflow:hidden;border-top:1px solid var(--gb);border-bottom:1px solid var(--gb);background:rgba(0,0,0,.4);padding:.5rem 0}
+    .ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 32s linear infinite}
+    .ticker-item{display:inline-flex;align-items:center;gap:.7rem;padding:0 1.5rem;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+    .ticker-item::after{content:'';width:4px;height:4px;background:var(--pink);border-radius:50%}
+    @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    /* SECTION */
+    .section{position:relative;z-index:1;padding:6rem 0}
+    .container{max-width:1200px;margin:0 auto;padding:0 2rem}
+    .sec-label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--pink);margin-bottom:.8rem;display:flex;align-items:center;gap:.8rem}
+    .sec-label::before{content:'';width:24px;height:1px;background:var(--pink)}
+    .sec-title{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:1rem}
+    .sec-sub{font-size:.92rem;color:var(--dim);line-height:1.7;max-width:560px}
+    .sec-header{margin-bottom:3.5rem}
+    /* MEDIA GRID */
+    .media-section{position:relative;z-index:1;padding:5rem 0}
+    .media-grid{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start}
+    /* YOUTUBE */
+    .youtube-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;overflow:hidden;backdrop-filter:blur(20px);transition:all .5s var(--ease);animation:fadeUp .8s var(--eout) .2s both}
+    .youtube-card:hover{border-color:rgba(0,207,255,.25);box-shadow:var(--gb2);transform:translateY(-3px) scale(1.003)}
+    .youtube-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--gb)}
+    .yt-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .9rem;background:rgba(255,0,0,.12);border:1px solid rgba(255,0,0,.2);border-radius:100px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ff4444}
+    .yt-badge .live-dot{background:#ff4444}
+    .yt-title{font-size:.78rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+    .yt-embed{position:relative;padding-top:56.25%;background:#000}
+    .yt-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+    .yt-footer{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .yt-channel-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.3rem;background:linear-gradient(135deg,rgba(255,0,0,.12),rgba(255,77,141,.12));border:1px solid rgba(255,77,141,.25);border-radius:100px;color:var(--pink);text-decoration:none;font-size:.76rem;font-weight:700;transition:all .3s var(--ease)}
+    .yt-channel-btn:hover{transform:scale(1.04);box-shadow:var(--gp);background:linear-gradient(135deg,rgba(255,0,0,.2),rgba(255,77,141,.2))}
+    .yt-note{font-size:.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+    /* PLAYER */
+    .player-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;padding:1.5rem;backdrop-filter:blur(20px);animation:fadeUp .8s var(--eout) .4s both;transition:all .4s var(--ease)}
+    .player-card:hover{border-color:rgba(155,89,255,.25);box-shadow:var(--gv)}
+    .player-art-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;margin-bottom:1.2rem;transition:transform .5s var(--ease);display:flex;align-items:center;justify-content:center;background:rgba(6,8,16,.6)}
+    .player-art-img{width:70.7%;height:70.7%;object-fit:contain;transition:transform .6s var(--ease);flex-shrink:0;mix-blend-mode:screen}
+    .player-art-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,8,16,.7) 0%,transparent 50%)}
+    .player-spinning .player-art-img{animation:spinArt 12s linear infinite}
+    @keyframes spinArt{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .player-section-tag{font-size:.66rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--purple);margin-bottom:.25rem}
+    .player-track-name{font-family:'Orbitron',monospace;font-size:.98rem;font-weight:700;color:var(--text);margin-bottom:.2rem}
+    .player-anime-name{font-size:.76rem;color:var(--dim);margin-bottom:1rem}
+    #audioVizCanvas{width:100%;height:44px;border-radius:8px;margin-bottom:.8rem;background:rgba(0,0,0,.2)}
+    .progress-wrap{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+    .time-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim);min-width:30px}
+    .progress-track{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:2px;cursor:pointer;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:2px;width:0%;transition:width .3s linear}
+    .ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+    .ctrl-sec{display:flex;gap:.4rem}
+    .ctrl-main{display:flex;align-items:center;gap:.5rem}
+    .ctrl-btn{width:30px;height:30px;background:none;border:none;color:var(--dim);cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .25s var(--ease)}
+    .ctrl-btn:hover{color:var(--text);background:var(--glass)}
+    .ctrl-btn.active-ctrl{color:var(--pink)}
+    .ctrl-btn svg{width:13px;height:13px}
+    .btn-play-main{width:46px;height:46px;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s var(--ease);box-shadow:0 4px 20px rgba(155,89,255,.4)}
+    .btn-play-main:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(155,89,255,.6)}
+    .btn-play-main svg{width:17px;height:17px;fill:white}
+    .btn-pn{width:34px;height:34px;background:var(--glass);border:1px solid var(--gb);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dim);transition:all .25s var(--ease)}
+    .btn-pn:hover{color:var(--text);background:rgba(255,255,255,.08)}
+    .btn-pn svg{width:13px;height:13px}
+    .vol-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem}
+    .vol-icon svg{width:13px;height:13px;color:var(--dim)}
+    input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:rgba(255,255,255,.1);border-radius:2px;cursor:pointer}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--pink);border-radius:50%}
+    .mode-toggle{width:100%;padding:.55rem;background:var(--glass);border:1px solid var(--gb);border-radius:10px;color:var(--dim);font-family:'Syne',sans-serif;font-size:.76rem;font-weight:700;cursor:pointer;transition:all .3s var(--ease)}
+    .mode-toggle:hover{color:var(--text);background:rgba(255,255,255,.06);border-color:rgba(155,89,255,.3)}
+    /* BANNER */
+    .banner-section{position:relative;z-index:1;overflow:hidden;height:360px}
+    .banner-img{width:100%;height:100%;object-fit:cover;filter:blur(3px) brightness(.35) saturate(1.5);transform:scale(1.06);transition:transform .8s var(--ease)}
+    .banner-section:hover .banner-img{transform:scale(1.1)}
+    .banner-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,8,16,.9) 0%,rgba(155,89,255,.12) 50%,rgba(6,8,16,.9) 100%);display:flex;align-items:center;justify-content:center}
+    .banner-content{text-align:center}
+    .banner-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:.8rem}
+    .banner-title{font-family:'Orbitron',monospace;font-size:clamp(1.5rem,4vw,2.8rem);font-weight:900;background:linear-gradient(135deg,var(--text),var(--dim));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+    .banner-sub{font-size:.88rem;color:var(--dim)}
+    /* CHARS */
+    .chars-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    .char-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;overflow:hidden;transition:all .5s var(--ease);position:relative}
+    .char-card.hikari-ch:hover{transform:translateY(-6px);box-shadow:var(--gp);border-color:rgba(255,77,141,.3)}
+    .char-card.kaito-ch:hover{transform:translateY(-6px);box-shadow:var(--gv);border-color:rgba(155,89,255,.3)}
+    .char-img-area{position:relative;height:260px;overflow:hidden;background:linear-gradient(135deg,var(--dark2),var(--dark3))}
+    .char-bg{position:absolute;inset:0;opacity:.35}
+    .hikari-bg{background:radial-gradient(circle at 50% 100%,rgba(255,77,141,.7),transparent 70%)}
+    .kaito-bg{background:radial-gradient(circle at 50% 100%,rgba(155,89,255,.7),transparent 70%)}
+    .char-avatar{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:245px;width:auto;object-fit:contain;filter:drop-shadow(0 -8px 24px rgba(0,0,0,.5));transition:transform .5s var(--ease)}
+    .char-card:hover .char-avatar{transform:translateX(-50%) scale(1.04) translateY(-5px)}
+    .char-bar{position:absolute;top:0;left:0;right:0;height:3px}
+    .hikari-ch .char-bar{background:linear-gradient(90deg,var(--pink),var(--purple))}
+    .kaito-ch .char-bar{background:linear-gradient(90deg,var(--purple),var(--blue))}
+    .char-body{padding:1.4rem}
+    .char-role{font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:.3rem}
+    .char-name{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;margin-bottom:.6rem}
+    .char-name.pink{color:var(--pink)}
+    .char-name.purple{color:var(--purple)}
+    .char-bio{font-size:.83rem;color:var(--dim);line-height:1.6;margin-bottom:.9rem}
+    .char-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+    .tag{padding:.22rem .75rem;border-radius:100px;font-size:.66rem;font-weight:700;letter-spacing:.05em}
+    .tag.pink{background:rgba(255,77,141,.1);border:1px solid rgba(255,77,141,.25);color:var(--pink)}
+    .tag.purple{background:rgba(155,89,255,.1);border:1px solid rgba(155,89,255,.25);color:var(--purple)}
+    .tag.blue{background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.25);color:var(--blue)}
+    /* CHAT */
+    .chat-section{position:relative;z-index:1;padding:6rem 0}
+    .discord-wrap{display:grid;grid-template-columns:210px 1fr;height:520px;border:1px solid var(--gb);border-radius:20px;overflow:hidden;background:rgba(0,0,0,.55);backdrop-filter:blur(24px);transition:border-color .4s}
+    .discord-wrap:hover{border-color:rgba(155,89,255,.2)}
+    .discord-sidebar{background:rgba(0,0,0,.45);border-right:1px solid var(--gb);display:flex;flex-direction:column}
+    .ds-server{padding:1rem;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:.7rem}
+    .ds-server img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+    .ds-server span{font-size:.8rem;font-weight:700}
+    .ds-channels{flex:1;padding:.6rem .4rem;overflow-y:auto}
+    .ch-head{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:.3rem .5rem;margin-bottom:.2rem}
+    .ch-btn{display:block;width:100%;padding:.38rem .65rem;background:none;border:none;border-radius:6px;color:var(--dim);font-family:'Syne',sans-serif;font-size:.78rem;cursor:pointer;text-align:left;transition:all .2s;margin-bottom:.05rem}
+    .ch-btn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+    .ch-btn.active{background:rgba(155,89,255,.15);color:var(--text)}
+    .ds-user{padding:.6rem;border-top:1px solid var(--gb)}
+    .ds-user input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:7px;padding:.35rem .55rem;font-family:'Syne',sans-serif;font-size:.73rem;color:var(--text);outline:none;transition:border-color .3s}
+    .ds-user input:focus{border-color:rgba(155,89,255,.5)}
+    .discord-main{display:flex;flex-direction:column}
+    .dc-header{display:flex;align-items:center;gap:.55rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--gb);font-size:.83rem;font-weight:700}
+    .dc-count{margin-left:auto;display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--dim)}
+    .dc-dot{width:7px;height:7px;border-radius:50%;background:#39d353;animation:livePulse 1.5s infinite}
+    .msgs{flex:1;overflow-y:auto;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.65rem;scroll-behavior:smooth}
+    .msgs::-webkit-scrollbar{width:3px}
+    .msgs::-webkit-scrollbar-thumb{background:rgba(155,89,255,.3);border-radius:2px}
+    .msg-wrap{display:flex;align-items:flex-start;gap:.65rem;animation:msgSlide .4s var(--eout) both}
+    @keyframes msgSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .msg-av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0}
+    .msg-body{}
+    .msg-head{display:flex;align-items:baseline;gap:.45rem;margin-bottom:.18rem}
+    .msg-name{font-size:.78rem;font-weight:700}
+    .msg-name.pink{color:var(--pink)}
+    .msg-name.purple{color:var(--purple)}
+    .msg-name.blue{color:var(--blue)}
+    .msg-time{font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+    .msg-text{font-size:.8rem;color:var(--text);line-height:1.5}
+    .msg-wrap.user{flex-direction:row-reverse}
+    .msg-wrap.user .msg-body{text-align:right}
+    .msg-wrap.user .msg-head{justify-content:flex-end}
+    .msg-wrap.user .msg-text{display:inline-block;background:linear-gradient(135deg,rgba(155,89,255,.2),rgba(255,77,141,.2));border:1px solid rgba(155,89,255,.2);padding:.38rem .75rem;border-radius:12px 2px 12px 12px}
+    .dc-input-row{display:flex;gap:.55rem;padding:.75rem 1.1rem;border-top:1px solid var(--gb)}
+    .dc-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:9px;padding:.55rem .9rem;font-family:'Syne',sans-serif;font-size:.8rem;color:var(--text);outline:none;transition:all .3s var(--ease)}
+    .dc-input:focus{border-color:rgba(155,89,255,.5);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(155,89,255,.1)}
+    .dc-send{padding:.55rem 1.1rem;background:linear-gradient(135deg,var(--purple),var(--pink));border:none;border-radius:9px;color:white;font-family:'Syne',sans-serif;font-size:.76rem;font-weight:700;cursor:pointer;transition:all .3s var(--ease)}
+    .dc-send:hover{transform:scale(1.05);box-shadow:var(--gv)}
+    /* SOCIAL */
+    .social-section{position:relative;z-index:1;padding:4rem 0}
+    .social-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+    .soc-card{background:var(--glass);border:1px solid var(--gb);border-radius:16px;padding:1.5rem;text-align:center;transition:all .4s var(--ease);text-decoration:none;display:block;color:var(--text)}
+    .soc-card:hover{transform:translateY(-4px);background:rgba(255,255,255,.06)}
+    .soc-card.yt:hover{border-color:rgba(255,0,0,.35);box-shadow:0 0 28px rgba(255,0,0,.18)}
+    .soc-card.fb:hover{border-color:rgba(24,119,242,.35);box-shadow:0 0 28px rgba(24,119,242,.18)}
+    .soc-card.ml:hover{border-color:rgba(255,77,141,.35);box-shadow:var(--gp)}
+    .soc-card.dc:hover{border-color:rgba(88,101,242,.35);box-shadow:0 0 28px rgba(88,101,242,.18)}
+    .soc-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto .8rem}
+    .soc-icon svg{width:22px;height:22px}
+    .soc-name{font-weight:700;font-size:.85rem;margin-bottom:.2rem}
+    .soc-desc{font-size:.72rem;color:var(--dim)}
+    /* FOOTER */
+    footer{position:relative;z-index:1;border-top:1px solid var(--gb);padding:2.5rem;background:rgba(0,0,0,.4)}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .footer-logo{height:26px;mix-blend-mode:screen;filter:brightness(1.3)}
+    .footer-links{display:flex;gap:2rem}
+    .footer-links a{color:var(--dim);text-decoration:none;font-size:.78rem;transition:color .3s}
+    .footer-links a:hover{color:var(--text)}
+    .footer-copy{font-size:.72rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+    /* ANIMATIONS */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s var(--eout),transform .7s var(--eout)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}.rd4{transition-delay:.4s}
+    /* RESPONSIVE */
+    @media(max-width:900px){
+      .nav{padding:1rem 1.5rem}
+      .nav-links{display:none}
+      .media-grid{grid-template-columns:1fr}
+      .chars-grid{grid-template-columns:1fr}
+      .discord-sidebar{display:none}
+      .discord-wrap{grid-template-columns:1fr}
+      .social-grid{grid-template-columns:repeat(2,1fr)}
+      .footer-inner{flex-direction:column;text-align:center}
+      .footer-links{justify-content:center}
+    }
+  </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════
-     NAV
-════════════════════════════════════ -->
-<nav class="nav">
+<canvas id="webgl-bg"></canvas>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav class="nav" id="mainNav">
   <a href="#" class="nav-brand">
-    <img src="assets/images/logo_horizontal.png" alt="OtakuWave" class="nav-brand-logo blend-screen" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 200 50%27%3E%3Ctext y=%2735%27 font-size=%2724%27 fill=%27%23FF4D8D%27%3E🎌 OtakuWave%3C/text%3E%3C/svg%3E'">
+    <img src="assets/images/logo_horizontal.png" alt="OtakuWave" class="nav-brand-logo"
+      onerror="this.outerHTML='<span style=\'font-family:Orbitron,monospace;font-weight:900;font-size:1.1rem;background:linear-gradient(135deg,#FF4D8D,#9B59FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent\'>OtakuWave</span>'">
   </a>
   <ul class="nav-links">
     <li><a href="#reproductor">Radio</a></li>
     <li><a href="#personajes">Personajes</a></li>
-    <li><a href="#programacion">Programación</a></li>
-    <li><a href="#secciones">Secciones</a></li>
     <li><a href="#comunidad">Comunidad</a></li>
-    <li><a href="#zona-fan">Zona Fan</a></li>
   </ul>
   <div class="nav-live">
     <span class="live-dot"></span>
-    En vivo ahora
+    En vivo
   </div>
 </nav>
 
-
-<!-- ═══════════════════════════════════
-     HERO
-════════════════════════════════════ -->
-<div class="hero">
-  <div class="hero-orb hero-orb-1"></div>
-  <div class="hero-orb hero-orb-2"></div>
-  <div class="hero-orb hero-orb-3"></div>
-
-  <p class="hero-eyebrow anim-1">Radio Anime Online · 24/7</p>
-
-  <h1 class="hero-title anim-2">
-    <span class="line-pink">Donde el anime</span>
-    <span class="line-white">suena</span>
-    <span class="line-blue">sin parar.</span>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="live-dot"></span>
+    Radio Anime Online &nbsp;·&nbsp; 24/7
+  </div>
+  <h1 class="hero-title">
+    <span class="l1">Donde el anime</span>
+    <span class="l2">suena</span>
+    <span class="l3">sin parar.</span>
   </h1>
-
-  <p class="hero-sub anim-3">
-    La primera radio anime donde tú decides lo que suena.
-    Vota, escucha y sé parte del universo OtakuWave.
-  </p>
-
-  <div class="hero-cta anim-4">
+  <p class="hero-sub">Una señal, una comunidad, un solo universo OtakuWave. Kaito e Hikari te esperan en la frecuencia.</p>
+  <div class="hero-cta">
     <a href="#reproductor" class="btn-primary">Escuchar ahora</a>
     <a href="#comunidad" class="btn-ghost">Unirme a la comunidad</a>
   </div>
-</div>
-
-<!-- ═══════════════════════════════════
-     REPRODUCTOR Y STREAM
-════════════════════════════════════ -->
-<section id="reproductor" class="player-section-full">
-  <div class="section-inner" style="padding-top: 2rem; padding-bottom: 2rem;">
-    
-    <div style="text-align: center; margin-bottom: 1.5rem;">
-      <p class="label-tag">🎵 Escucha ahora</p>
-      <h2 class="section-title display" style="font-size: clamp(1.4rem, 4vw, 1.8rem);">Radio en vivo</h2>
-    </div>
-
-    <!-- Reproductor MP3 -->
-    <div class="player-compact" id="mp3PlayerWrap">
-      <div class="player">
-        <div class="player-header">
-          <div class="player-art" id="playerArt">
-            <img src="assets/images/avatar_hikari.png" alt="Hikari" id="playerArtImg">
-          </div>
-          <div class="player-meta">
-            <div class="player-section" id="playerSection">Anime Hits</div>
-            <div class="player-track" id="playerTrack">Gurenge — LiSA</div>
-            <div class="player-anime" id="playerAnime">Kimetsu no Yaiba</div>
-          </div>
-          <div class="player-vol">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" opacity=".7"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-            <input type="range" min="0" max="100" value="75" id="volSlider" aria-label="Volumen">
-          </div>
-        </div>
-
-        <div class="waveform" id="waveform"></div>
-
-        <div class="progress-row">
-          <span class="time" id="timeElapsed">0:00</span>
-          <div class="progress-track" onclick="seekTo(event)">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <span class="time" id="timeDuration">4:51</span>
-        </div>
-
-        <div class="controls">
-          <div class="ctrl-secondary">
-            <button class="ctrl-btn" id="btnShuffle" onclick="toggleShuffle()" title="Shuffle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 3 21 3 21 8"/>
-                <line x1="4" y1="20" x2="21" y2="3"/>
-                <polyline points="21 16 21 21 16 21"/>
-                <line x1="15" y1="15" x2="21" y2="21"/>
-              </svg>
-            </button>
-            <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()" title="Repetir">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="17 1 21 5 17 9"/>
-                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-                <polyline points="7 23 3 19 7 15"/>
-                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-              </svg>
-            </button>
-          </div>
-
-          <div class="ctrl-main">
-            <button class="btn-prev" onclick="prevTrack()" title="Anterior">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="19 20 9 12 19 4 19 20" fill="currentColor" opacity=".7"/>
-                <line x1="5" y1="19" x2="5" y2="5"/>
-              </svg>
-            </button>
-            <button class="btn-play" id="btnPlay" onclick="togglePlay()" title="Play">
-              <svg id="playIcon" viewBox="0 0 24 24">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-            </button>
-            <button class="btn-next" onclick="nextTrack()" title="Siguiente">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" opacity=".7"/>
-                <line x1="19" y1="5" x2="19" y2="19"/>
-              </svg>
-            </button>
-          </div>
-
-          <div class="live-badge">
-            <span class="live-dot"></span>
-            MP3
-          </div>
-
-          <button class="btn-mode" id="toggleModeBtn" onclick="togglePlaybackMode()" title="Cambiar a Video Destacado">
-            🎬 VIDEO
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Video Destacado -->
-    <div class="youtube-stream-wrapper" id="youtubeLiveContainer" style="display: block;">
-      <div class="youtube-stream-header">
-        <span class="live-badge-stream">🔥 VIDEO DESTACADO</span>
-        <span class="youtube-stream-title">Gurenge - Demon Slayer: Kimetsu no Yaiba OP (161M+ views)</span>
-      </div>
-      <div class="youtube-stream-container">
-        <iframe 
-          width="100%" 
-          height="280" 
-          src="https://www.youtube.com/watch?v=Sjnc-B71O48"
-          title="Gurenge - Demon Slayer: Kimetsu no Yaiba Opening"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen
-          style="border-radius: 12px;">
-        </iframe>
-      </div>
-      <p class="youtube-stream-note">
-        🎵 Opening oficial de Demon Slayer: Kimetsu no Yaiba • Gurenge por LiSA • +161M de reproducciones
-      </p>
-    </div>
-
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     TICKER
-════════════════════════════════════ -->
+<!-- TICKER -->
 <div class="ticker-bar" aria-hidden="true">
   <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
-<!-- ═══════════════════════════════════
-     BANNER PRINCIPAL
-════════════════════════════════════ -->
+<!-- MEDIA HUB -->
+<section class="media-section" id="reproductor">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label reveal">Escucha ahora</div>
+      <h2 class="sec-title reveal rd1">Radio en vivo</h2>
+      <p class="sec-sub reveal rd2">Video y música siempre presentes. El canal de OtakuWave, tu soundtrack permanente.</p>
+    </div>
+    <div class="media-grid">
+      <!-- YouTube -->
+      <div class="youtube-card reveal rd1" id="youtubeLiveContainer">
+        <div class="youtube-header">
+          <span class="yt-badge"><span class="live-dot"></span>Video Destacado</span>
+          <span class="yt-title">Gurenge · Demon Slayer OP</span>
+        </div>
+        <div class="yt-embed">
+          <iframe src="https://www.youtube.com/embed/Sjnc-B71O48?rel=0&modestbranding=1"
+            title="OtakuWave Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div class="yt-footer">
+          <a href="https://www.youtube.com/@OtakuWave-v4l" target="_blank" rel="noopener" class="yt-channel-btn">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.95C18.88 4 12 4 12 4s-6.88 0-8.6.47a2.78 2.78 0 0 0-1.94 1.95A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.53C5.12 20 12 20 12 20s6.88 0 8.6-.47a2.78 2.78 0 0 0 1.94-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--dark)"/></svg>
+            Canal OtakuWave
+          </a>
+          <span class="yt-note">youtube.com/@OtakuWave-v4l</span>
+        </div>
+      </div>
 
-  <section class="banner-section">
-  <div class="banner-img-wrap">
-    <img src="assets/images/banner_main.jpg" alt="OtakuWave" class="banner-img" loading="lazy" onerror="this.style.display='none'">
-    <div class="banner-overlay">
-      <div class="banner-content">
-        <p class="banner-eyebrow"> </p>
-        <h2 class="banner-title display"> <br> </h2>
-        <p class="banner-sub"> </p>
-       <!-- <a href="#comunidad" class="btn-primary">Únete ahora</a>
-        -->
+      <!-- Music Player -->
+      <div class="player-card" id="mp3PlayerWrap">
+        <div class="player-art-wrap" id="playerArtWrap">
+          <img src="assets/images/logo_OtakuWave4.png" alt="OtakuWave" class="player-art-img" id="playerArtImg">
+          <div class="player-art-overlay"></div>
+        </div>
+        <div class="player-section-tag" id="playerSection">Audio Club</div>
+        <div class="player-track-name" id="playerTrack">Club Edyn</div>
+        <div class="player-anime-name" id="playerAnime">Night Sessions</div>
+        <canvas id="audioVizCanvas"></canvas>
+        <div class="progress-wrap">
+          <span class="time-label" id="timeElapsed">0:00</span>
+          <div class="progress-track" onclick="seekTo(event)">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="time-label" id="timeDuration">--:--</span>
+        </div>
+        <div class="ctrl-row">
+          <div class="ctrl-sec">
+            <button class="ctrl-btn" id="btnShuffle" onclick="toggleShuffle()" title="Shuffle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()" title="Repetir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </button>
+          </div>
+          <div class="ctrl-main">
+            <button class="btn-pn" onclick="prevTrack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20" fill="currentColor" opacity=".7"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+            <button class="btn-play-main" id="btnPlay" onclick="togglePlay()">
+              <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+            <button class="btn-pn" onclick="nextTrack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4" fill="currentColor" opacity=".7"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+          </div>
+          <div class="nav-live"><span class="live-dot"></span>MP3</div>
+        </div>
+        <div class="vol-row">
+          <div class="vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" opacity=".7"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></div>
+          <input type="range" min="0" max="100" value="75" id="volSlider" aria-label="Volumen">
+        </div>
+        <button class="mode-toggle" id="toggleModeBtn" onclick="togglePlaybackMode()">Cambiar a modo Video</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     PERSONAJES
-════════════════════════════════════ -->
-<section id="personajes">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">Los guardianes de la frecuencia</p>
-      <h2 class="section-title display">Akira e Hikari</h2>
-      <p class="section-sub">No son presentadores. Son los protagonistas de un universo que la comunidad co-escribe cada semana.</p>
-    </header>
+<!-- BANNER -->
+<div class="banner-section">
+  <img src="assets/images/banner_main.jpg" alt="OtakuWave" class="banner-img" loading="lazy" onerror="this.style.display='none'">
+  <div class="banner-overlay">
+    <div class="banner-content">
+      <p class="banner-eyebrow">La frecuencia que nunca duerme</p>
+      <h2 class="banner-title">Una señal. Un universo.</h2>
+      <p class="banner-sub">OtakuWave Radio · 24 horas · 7 dias</p>
+    </div>
+  </div>
+</div>
 
+<!-- PERSONAJES -->
+<section class="section" id="personajes">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label reveal">Los guardianes de la frecuencia</div>
+      <h2 class="sec-title reveal rd1">Kaito e Hikari</h2>
+      <p class="sec-sub reveal rd2">No son presentadores. Son los protagonistas de un universo que la comunidad co-escribe cada semana.</p>
+    </div>
     <div class="chars-grid">
-      <article class="char-card hikari-ch">
-        <div class="char-card-bar"></div>
+      <article class="char-card hikari-ch reveal rd1">
+        <div class="char-bar"></div>
         <div class="char-img-area">
-          <div class="char-img-bg hikari-bg"></div>
-          <img src="assets/images/banner_hikari.jpg" alt="Hikari" class="char-banner-img" loading="lazy">
+          <div class="char-bg hikari-bg"></div>
+          <img src="assets/images/avatar_hikari.png" alt="Hikari" class="char-avatar" loading="lazy">
         </div>
         <div class="char-body">
           <div class="char-role">Locutora · Shojo Heart · Voz de la frecuencia</div>
           <div class="char-name pink">Hikari</div>
-          <p class="char-bio">Sabía que la estación existía antes de conocer a Akira. Llegó primero — lo estaba esperando sin saberlo. Serena pero con opiniones firmes.</p>
+          <p class="char-bio">Sabía que la estación existía antes de conocer a Kaito. Llegó primero — lo estaba esperando sin saberlo. Serena pero con opiniones firmes.</p>
           <div class="char-tags">
             <span class="tag pink">Romance anime</span>
             <span class="tag pink">Lore hunter</span>
@@ -253,16 +399,16 @@
           </div>
         </div>
       </article>
-
-      <article class="char-card akira-ch">
-        <div class="char-card-bar"></div>
+      <article class="char-card kaito-ch reveal rd2">
+        <div class="char-bar"></div>
         <div class="char-img-area">
-          <div class="char-img-bg akira-bg"></div>
-          <img src="assets/images/banner_akira.jpg" alt="Akira" class="char-banner-img" loading="lazy">
+          <div class="char-bg kaito-bg"></div>
+          <img src="assets/images/avatar_kaito.png" alt="Kaito" class="char-avatar" loading="lazy"
+            onerror="this.src='assets/images/avatar_hikari.png'">
         </div>
         <div class="char-body">
           <div class="char-role">Locutor · Shonen Soul · DJ del caos</div>
-          <div class="char-name purple">Akira</div>
+          <div class="char-name purple">Kaito</div>
           <p class="char-bio">Coleccionista de openings desde los 12 años. Encontró la frecuencia de madrugada siguiendo una señal que no debía existir.</p>
           <div class="char-tags">
             <span class="tag purple">Shonen</span>
@@ -275,239 +421,86 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     INTRO VIDEOS
-════════════════════════════════════ -->
-<section id="intro" style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">Conócelos en acción</p>
-      <h2 class="section-title display">Los protagonistas</h2>
-      <p class="section-sub">Mira los intros de Akira e Hikari — los guardianes que transmiten la frecuencia 24/7.</p>
-    </header>
-
-    <div class="intro-grid">
-      <div class="intro-card hikari-card">
-        <div class="intro-video-wrap">
-          <video src="assets/video/intro_hikari.mp4" preload="metadata" playsinline></video>
-          <div class="intro-play-overlay">
-            <div class="intro-play-btn">
-              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </div>
-          </div>
+<!-- CHAT -->
+<section class="chat-section" id="comunidad">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label reveal">La comunidad</div>
+      <h2 class="sec-title reveal rd1">Chat de la frecuencia</h2>
+      <p class="sec-sub reveal rd2">Únete a la conversación. Kaito e Hikari están activos en el chat.</p>
+    </div>
+    <div class="discord-wrap reveal rd2">
+      <div class="discord-sidebar">
+        <div class="ds-server">
+          <img src="assets/images/logo-favicon.png" alt="OW" onerror="this.style.display='none'">
+          <span>OtakuWave</span>
         </div>
-        <div class="intro-card-body">
-          <div class="intro-char-name pink">Hikari</div>
-          <div class="intro-char-role">Locutora · Voz de la frecuencia</div>
+        <div class="ds-channels">
+          <div class="ch-head">Canales de texto</div>
+          <button class="ch-btn active" onclick="switchChannel(this,'general','general')">📡 general</button>
+          <button class="ch-btn" onclick="switchChannel(this,'lofi','lofi-chill-beats')">🎧 lofi-chill-beats</button>
+          <button class="ch-btn" onclick="switchChannel(this,'battle','vs-hikari-vs-kaito')">⚔️ vs-hikari-vs-kaito</button>
+          <button class="ch-btn" onclick="switchChannel(this,'openings','anime-openings')">🎵 anime-openings</button>
+          <button class="ch-btn" onclick="switchChannel(this,'comunidad','comunidad-otaku')">🌸 comunidad-otaku</button>
+        </div>
+        <div class="ds-user">
+          <input type="text" id="chatUserName" placeholder="Tu nombre..." maxlength="20">
         </div>
       </div>
-
-      <div class="intro-card akira-card">
-        <div class="intro-video-wrap">
-          <video src="assets/video/intro_akira.mp4" preload="metadata" playsinline></video>
-          <div class="intro-play-overlay">
-            <div class="intro-play-btn">
-              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </div>
-          </div>
+      <div class="discord-main">
+        <div class="dc-header">
+          <span id="chIcon">📡</span>
+          <span id="chNameDisplay">#general</span>
+          <div class="dc-count"><div class="dc-dot"></div><span id="chCount">Online</span></div>
         </div>
-        <div class="intro-card-body">
-          <div class="intro-char-name purple">Akira</div>
-          <div class="intro-char-role">Locutor · DJ del caos</div>
+        <div class="msgs" id="discordMsgs"></div>
+        <div class="dc-input-row">
+          <input type="text" class="dc-input" id="chatInput" placeholder="Mensaje en #general" maxlength="200">
+          <button class="dc-send" onclick="sendUserMessage()">Enviar</button>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     PROGRAMACIÓN
-════════════════════════════════════ -->
-<section id="programacion">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">Horario</p>
-      <h2 class="section-title display">Programación</h2>
-      <p class="section-sub">Cada franja tiene su propio universo sonoro.</p>
-    </header>
-
-    <div class="schedule-grid">
-      <div class="sched-card"><div class="sched-time">06:00 — 12:00</div><div class="sched-name">Morning Wave</div><p class="sched-desc">Openings energéticos y J-pop para arrancar el día.</p></div>
-      <div class="sched-card"><div class="sched-time">12:00 — 18:00</div><div class="sched-name">Tarde Otaku</div><p class="sched-desc">Noticias, Otaku News, La Frecuencia Decide.</p></div>
-      <div class="sched-card"><div class="sched-time">18:00 — 22:00</div><div class="sched-name">Prime Time</div><p class="sched-desc">El Tribunal Otaku, Batalla Anime.</p></div>
-      <div class="sched-card"><div class="sched-time">22:00 — 00:00</div><div class="sched-name">Señal Perdida</div><p class="sched-desc">Openings y endings con historia oscura.</p></div>
-      <div class="sched-card"><div class="sched-time">00:00 — 06:00</div><div class="sched-name">Lo-Fi Anime Mode</div><p class="sched-desc">Lo-fi, endings suaves e instrumentales.</p></div>
-      <div class="sched-card featured"><div class="sched-time">Viernes 20:00</div><div class="sched-name text-pink">En vivo especial</div><p class="sched-desc">Transmisión semanal en vivo. La comunidad elige el tema.</p></div>
+<!-- SOCIAL -->
+<section class="social-section">
+  <div class="container">
+    <div class="sec-header" style="margin-bottom:2rem">
+      <div class="sec-label reveal">Conéctate</div>
+      <h2 class="sec-title reveal rd1">La frecuencia en todas partes</h2>
+    </div>
+    <div class="social-grid">
+      <a href="https://www.youtube.com/@OtakuWave-v4l" target="_blank" class="soc-card yt reveal rd1">
+        <div class="soc-icon" style="background:rgba(255,0,0,.12)"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.95C18.88 4 12 4 12 4s-6.88 0-8.6.47a2.78 2.78 0 0 0-1.94 1.95A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.53C5.12 20 12 20 12 20s6.88 0 8.6-.47a2.78 2.78 0 0 0 1.94-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white"/></svg></div>
+        <div class="soc-name">YouTube</div>
+        <div class="soc-desc">Canal oficial</div>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61589493800766" target="_blank" class="soc-card fb reveal rd2">
+        <div class="soc-icon" style="background:rgba(24,119,242,.12)"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+        <div class="soc-name">Facebook</div>
+        <div class="soc-desc">Comunidad</div>
+      </a>
+      <a href="mailto:otakuwave7@gmail.com" class="soc-card ml reveal rd3">
+        <div class="soc-icon" style="background:rgba(255,77,141,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="soc-name">Email</div>
+        <div class="soc-desc">otakuwave7@gmail.com</div>
+      </a>
+      <a href="#comunidad" class="soc-card dc reveal rd4">
+        <div class="soc-icon" style="background:rgba(88,101,242,.12)"><svg viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.73 19.73 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></div>
+        <div class="soc-name">Discord</div>
+        <div class="soc-desc">Chat en tiempo real</div>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     SECCIONES
-════════════════════════════════════ -->
-<section id="secciones" style="background:rgba(123,44,191,.04);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">El universo OtakuWave</p>
-      <h2 class="section-title display">Secciones</h2>
-      <p class="section-sub">Cada sección es un formato con mecánica de engagement propia.</p>
-    </header>
-
-    <div class="sections-grid">
-      <div class="section-card"><div class="sc-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="#9D4EDD"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="sc-name">Anime Hits</div><p class="sc-desc">Openings y endings icónicos elegidos por la comunidad.</p></div>
-      <div class="section-card"><div class="sc-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="#00CFFF"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg></div><div class="sc-name">Otaku News</div><p class="sc-desc">Noticias del mundo anime filtradas por Akira e Hikari.</p></div>
-      <div class="section-card"><div class="sc-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="#FF4D8D"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="sc-name">Zona Fan</div><p class="sc-desc">Los mensajes y creaciones de la comunidad se vuelven parte del aire.</p></div>
-      <div class="section-card"><div class="sc-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="#EF9F27"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="sc-name">Batalla Anime</div><p class="sc-desc">El debate otaku más épico de la semana.</p></div>
-      <div class="section-card"><div class="sc-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="#1D9E75"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="sc-name">Momento Kawaii</div><p class="sc-desc">Endings románticos, slice of life y el espacio donde Hikari manda.</p></div>
-      <div class="section-card"><div class="sc-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="#639922"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m8 21 4-4 4 4"/><path d="M10 13l-2-2 2-2"/><path d="M14 13l2-2-2-2"/></svg></div><div class="sc-name">Gaming Zone</div><p class="sc-desc">Soundtracks anime-gaming, noticias y el cruce entre dos universos.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     LA FRECUENCIA DECIDE
-════════════════════════════════════ -->
-<section id="frecuencia">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">Formato propio</p>
-      <h2 class="section-title display">La Frecuencia Decide</h2>
-      <p class="section-sub">Tu voto tiene consecuencias reales. El resultado cambia la programación de mañana.</p>
-    </header>
-
-    <div class="vote-card">
-      <div class="vote-question">Esta semana: ¿Cuál abre el Prime Time del viernes?</div>
-      <div class="vote-sub">Akira vota Demon Slayer. Hikari insiste en Attack on Titan. Tú decides.</div>
-      <div class="vote-options">
-        <div class="vote-option" id="opt0" onclick="vote(0)">
-          <span class="vote-option-text">Gurenge — Kimetsu no Yaiba</span>
-          <div class="vote-right">
-            <div class="vote-bar-wrap"><div class="vote-bar" id="bar0" style="width:58%"></div></div>
-            <span class="vote-pct" id="pct0">58%</span>
-          </div>
-        </div>
-        <div class="vote-option" id="opt1" onclick="vote(1)">
-          <span class="vote-option-text">Guren no Yumiya — Attack on Titan</span>
-          <div class="vote-right">
-            <div class="vote-bar-wrap"><div class="vote-bar" id="bar1" style="width:42%"></div></div>
-            <span class="vote-pct" id="pct1">42%</span>
-          </div>
-        </div>
-      </div>
-      <div class="vote-footer">
-        <span class="vote-pulse"></span>
-        <span id="voteTimer">Cierra en 14h 32m — 2,847 votos</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     COMUNIDAD
-════════════════════════════════════ -->
-<section id="comunidad">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">Niveles de la frecuencia</p>
-      <h2 class="section-title display">La comunidad</h2>
-      <p class="section-sub">No escuchas OtakuWave — la construyes. Cada participación sube tu nivel en la frecuencia.</p>
-    </header>
-
-    <div class="community-grid">
-      <div class="comm-card">
-        <div class="comm-label">Sistema de niveles</div>
-        <div class="comm-title">Tu rango en la frecuencia</div>
-        <p class="comm-body">Avanzas según participación, no según lo que pagas. Votar, comentar, sugerir canciones y participar en decisiones narrativas de Akira e Hikari suma nivel.</p>
-        <div class="levels">
-          <div class="level-row"><div class="level-dot" style="background:#555"></div><span class="level-name">Sintonizador</span><span class="level-desc">Nuevo oyente. Escucha y vota.</span></div>
-          <div class="level-row"><div class="level-dot" style="background:var(--blue)"></div><span class="level-name">Oyente Neko</span><span class="level-desc">Sugiere canciones, participa en polls.</span></div>
-          <div class="level-row"><div class="level-dot" style="background:var(--purple-light)"></div><span class="level-name">Guardián Otaku</span><span class="level-desc">Vota decisiones del lore de Akira/Hikari.</span></div>
-          <div class="level-row"><div class="level-dot" style="background:var(--pink)"></div><span class="level-name">Maestro de Onda</span><span class="level-desc">Co-presenta un segmento al mes en vivo.</span></div>
-        </div>
-      </div>
-
-      <div class="comm-card">
-        <div class="comm-label">Canales de la comunidad</div>
-        <div class="comm-title">Conéctate a la frecuencia</div>
-        <p class="comm-body">Cada plataforma tiene un rol específico en el ecosistema OtakuWave.</p>
-        <div class="social-rows">
-          <div class="social-row"><div class="social-icon" style="background:rgba(225,48,108,.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="16" cy="8" r="1.5" fill="#E1306C" stroke="none"></circle><circle cx="12" cy="12" r="4" stroke="#E1306C"></circle></svg></div><span class="social-name">Instagram</span><span class="social-desc">Contenido visual</span></div>
-          <div class="social-row"><div class="social-icon" style="background:rgba(255,255,255,.07)"><svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text)"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg></div><span class="social-name">TikTok</span><span class="social-desc">Formatos virales</span></div>
-          <div class="social-row"><div class="social-icon" style="background:rgba(88,101,242,.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.73 19.73 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></div><span class="social-name">Discord</span><span class="social-desc">Comunidad en vivo</span></div>
-          <div class="social-row"><div class="social-icon" style="background:rgba(255,0,0,.12)"><svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.95C18.88 4 12 4 12 4s-6.88 0-8.6.47a2.78 2.78 0 0 0-1.94 1.95A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.53C5.12 20 12 20 12 20s6.88 0 8.6-.47a2.78 2.78 0 0 0 1.94-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white"/></svg></div><span class="social-name">YouTube</span><span class="social-desc">Series en vivo</span></div>
-          <div class="social-row"><div class="social-icon" style="background:rgba(37,211,102,.12)"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></div><span class="social-name">WhatsApp</span><span class="social-desc">Canal directo</span></div>
-        </div>
-        <a href="#" class="btn-primary" style="display:block;text-align:center;margin-top:1.5rem;" onclick="alert('¡Próximamente! La comunidad abre con el lanzamiento.');return false;">Unirme ahora</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     ZONA FAN - MURO DE MENSAJES
-════════════════════════════════════ -->
-<section id="zona-fan" style="background: var(--card2);">
-  <div class="section-inner">
-    <header class="section-header">
-      <p class="label-tag">La comunidad habla</p>
-      <h2 class="section-title display">Zona Fan</h2>
-      <p class="section-sub">Los mensajes y creaciones de la comunidad se vuelven parte del aire.</p>
-    </header>
-
-    <div class="fan-wall">
-      <div class="fan-form">
-        <input type="text" id="fanName" placeholder="Tu nombre (opcional)" maxlength="30">
-        <textarea id="fanMessage" rows="2" placeholder="Escribe tu mensaje para la comunidad..." maxlength="200"></textarea>
-        <button onclick="postFanMessage()" class="btn-primary">Enviar mensaje 💬</button>
-      </div>
-      <div class="fan-messages" id="fanMessages">
-        <div class="fan-message system">✨ ¡Bienvenido a la Zona Fan! Deja tu mensaje.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     CONTACTO NEWSLETTER
-════════════════════════════════════ -->
-<section id="contacto" style="background: linear-gradient(135deg, rgba(123,44,191,0.1), rgba(255,77,141,0.05));">
-  <div class="section-inner" style="text-align: center;">
-    <div style="max-width: 600px; margin: 0 auto;">
-      <p class="label-tag">📬 Mantente en sintonía</p>
-      <h2 class="section-title display" style="font-size: clamp(1.8rem, 4vw, 2.5rem);">¿Quieres más contenido exclusivo?</h2>
-      <p class="section-sub" style="margin-bottom: 2rem;">Recibe openings, noticias y sorpresas directamente en tu correo</p>
-      
-      <form id="contactForm" style="display: flex; flex-direction: column; gap: 12px; max-width: 450px; margin: 0 auto;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <input type="text" id="contactName" placeholder="Tu nombre" required style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(123,44,191,0.3); border-radius: 8px; padding: 12px; color: white;">
-          <input type="email" id="contactEmail" placeholder="tu@email.com" required style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(123,44,191,0.3); border-radius: 8px; padding: 12px; color: white;">
-        </div>
-        <textarea id="contactMessage" rows="3" placeholder="¿Qué te gustaría escuchar o saber?" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(123,44,191,0.3); border-radius: 8px; padding: 12px; color: white; resize: vertical;"></textarea>
-        <button type="submit" class="btn-primary" style="width: 100%;">✉️ Enviar mensaje</button>
-        <p id="formStatus" style="font-size: 0.75rem; color: var(--muted); margin-top: 8px;"></p>
-      </form>
-      
-      <div style="margin-top: 2rem; display: flex; gap: 20px; justify-content: center;">
-        <a href="mailto:hola@otakuwave.xyz" style="color: var(--muted); text-decoration: none; font-size: 0.8rem;">📧 hola@otakuwave.xyz</a>
-        <span style="color: var(--border);">|</span>
-        <a href="#" style="color: var(--muted); text-decoration: none; font-size: 0.8rem;" onclick="showContactAlert(); return false;">💬 Soporte rápido</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     FOOTER
-════════════════════════════════════ -->
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
-    <div class="footer-brand">
-      <img src="assets/images/logo_horizontal.png" alt="OtakuWave" class="footer-logo blend-screen" loading="lazy" onerror="this.style.display='none'">
-      <span style="font-family:'Orbitron';font-size:0.8rem;">OtakuWave</span>
-    </div>
+    <img src="assets/images/logo_horizontal.png" alt="OtakuWave" class="footer-logo" onerror="this.style.display='none'">
     <div class="footer-links">
-      <a href="#">Sobre nosotros</a>
-      <a href="#">Contacto</a>
+      <a href="mailto:otakuwave7@gmail.com">Contacto</a>
       <a href="#">Términos</a>
       <a href="#">Privacidad</a>
     </div>
@@ -515,7 +508,305 @@
   </div>
 </footer>
 
-<!-- Scripts -->
-<script src="assets/js/main.js"></script>
+<script>
+/* THREE.JS PARTICLE FIELD */
+(function(){
+  const canvas=document.getElementById('webgl-bg');
+  try{
+    const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,.1,1000);
+    camera.position.z=50;
+    const count=2000;
+    const geo=new THREE.BufferGeometry();
+    const pos=new Float32Array(count*3);
+    const col=new Float32Array(count*3);
+    const pal=[[1,.30,.55],[0,.81,1],[.61,.35,1]];
+    for(let i=0;i<count;i++){
+      pos[i*3]=(Math.random()-.5)*220;
+      pos[i*3+1]=(Math.random()-.5)*220;
+      pos[i*3+2]=(Math.random()-.5)*110;
+      const c=pal[Math.floor(Math.random()*pal.length)];
+      const b=.25+Math.random()*.75;
+      col[i*3]=c[0]*b;col[i*3+1]=c[1]*b;col[i*3+2]=c[2]*b;
+    }
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+    const mat=new THREE.PointsMaterial({size:.32,vertexColors:true,transparent:true,opacity:.8,sizeAttenuation:true});
+    const pts=new THREE.Points(geo,mat);
+    scene.add(pts);
+    let mx=0,my=0,tx=0,ty=0,t=0;
+    document.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*.5;my=(e.clientY/window.innerHeight-.5)*.5;});
+    window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+    const positions=geo.attributes.position;
+    (function loop(){
+      requestAnimationFrame(loop);
+      t+=.003;
+      tx+=(mx-tx)*.04;ty+=(my-ty)*.04;
+      pts.rotation.y=t*.06+tx*.3;
+      pts.rotation.x=t*.025+ty*.2;
+      for(let i=0;i<positions.count;i+=10){
+        positions.array[i*3+1]+=Math.sin(t+i*.12)*.004;
+      }
+      positions.needsUpdate=true;
+      renderer.render(scene,camera);
+    })();
+  }catch(e){
+    document.body.style.background='radial-gradient(ellipse at 20% 50%,rgba(155,89,255,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,77,141,.06) 0%,transparent 50%),#060810';
+  }
+})();
+
+/* CURSOR */
+(function(){
+  const cur=document.getElementById('cursor');
+  const ring=document.getElementById('cursorRing');
+  let cx=-100,cy=-100,rx=-100,ry=-100;
+  document.addEventListener('mousemove',e=>{
+    cx=e.clientX;cy=e.clientY;
+    cur.style.transform=`translate(${cx-4}px,${cy-4}px)`;
+  });
+  (function ar(){
+    rx+=(cx-rx)*.14;ry+=(cy-ry)*.14;
+    ring.style.transform=`translate(${rx-16}px,${ry-16}px)`;
+    requestAnimationFrame(ar);
+  })();
+  document.querySelectorAll('a,button,.soc-card,.char-card,.youtube-card,.player-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ring.style.width='46px';ring.style.height='46px';ring.style.borderColor='rgba(155,89,255,.7)';});
+    el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(255,77,141,.5)';});
+  });
+})();
+
+/* NAV SCROLL */
+window.addEventListener('scroll',()=>{document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);});
+
+/* REVEAL */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* TICKER */
+const TICK=['Anime Hits','Otaku News','Batalla Anime','Señal Perdida','El Tribunal Otaku','Gaming Zone','Momento Kawaii','La Frecuencia Decide','Morning Wave','Lo-Fi Anime Mode','Zona Fan','Prime Time'];
+(function(){
+  const t=document.getElementById('tickerTrack');
+  if(!t)return;
+  [...TICK,...TICK].forEach(text=>{const s=document.createElement('span');s.className='ticker-item';s.textContent=text;t.appendChild(s);});
+})();
+
+/* AUDIO PLAYER */
+const TRACKS=[
+  {section:'Audio Club',track:'Club Edyn',anime:'Night Sessions',art:'hikari',file:'assets/audio/0002_audio_club_edyn.mp3'},
+  {section:'Gaming Zone',track:'Rocking the Anime',anime:'Astronaut Beats',art:'kaito',file:'assets/audio/0001_astronaut12_rocking.mp3'},
+];
+let cur_track=0,playing=false,shuffleOn=false,repeatOn=false,audioEl=null;
+const vc=document.getElementById('audioVizCanvas');
+const vctx=vc?vc.getContext('2d'):null;
+let vizBars=Array.from({length:38},()=>Math.random()*.25+.05);
+let vizTgt=Array.from({length:38},()=>Math.random()*.25+.05);
+function drawViz(){
+  if(!vctx)return;
+  const w=vc.offsetWidth,h=vc.offsetHeight;
+  vc.width=w;vc.height=h;
+  vctx.clearRect(0,0,w,h);
+  const bw=(w/vizBars.length)-1.5;
+  const pct=parseFloat(document.getElementById('progressFill')?.style.width||0)/100;
+  vizBars.forEach((v,i)=>{
+    if(playing)vizTgt[i]=Math.random()*.85+.05;
+    vizBars[i]+=(vizTgt[i]-vizBars[i])*(playing?.18:.04);
+    const x=i*(bw+1.5);
+    const bh=vizBars[i]*h;
+    const y=(h-bh)/2;
+    const active=(i/vizBars.length)<=pct;
+    const g=vctx.createLinearGradient(0,y,0,y+bh);
+    if(active){g.addColorStop(0,'rgba(255,77,141,.9)');g.addColorStop(1,'rgba(155,89,255,.6)');}
+    else{g.addColorStop(0,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,.04)');}
+    vctx.fillStyle=g;
+    vctx.beginPath();
+    if(vctx.roundRect)vctx.roundRect(x,y,bw,bh,2);
+    else vctx.rect(x,y,bw,bh);
+    vctx.fill();
+  });
+  requestAnimationFrame(drawViz);
+}
+drawViz();
+
+function fmt(s){if(isNaN(s))return'0:00';return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
+
+function loadTrack(idx){
+  const tr=TRACKS[idx%TRACKS.length];
+  if(!tr)return;
+  if(audioEl){audioEl.pause();audioEl.onended=audioEl.ontimeupdate=null;}
+  audioEl=new Audio(tr.file);
+  audioEl.onerror=()=>nextTrack();
+  audioEl.ontimeupdate=()=>{
+    if(!audioEl.duration)return;
+    const p=(audioEl.currentTime/audioEl.duration)*100;
+    document.getElementById('progressFill').style.width=p+'%';
+    document.getElementById('timeElapsed').textContent=fmt(audioEl.currentTime);
+  };
+  audioEl.onended=()=>{if(repeatOn){audioEl.currentTime=0;audioEl.play();}else nextTrack();};
+  audioEl.onloadedmetadata=()=>{document.getElementById('timeDuration').textContent=fmt(audioEl.duration);};
+  const vol=document.getElementById('volSlider');
+  if(vol)audioEl.volume=vol.value/100;
+  document.getElementById('playerSection').textContent=tr.section;
+  document.getElementById('playerTrack').textContent=tr.track;
+  document.getElementById('playerAnime').textContent=tr.anime;
+  const img=document.getElementById('playerArtImg');
+  if(img){img.src='assets/images/logo_OtakuWave4.png';}
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('timeElapsed').textContent='0:00';
+  if(playing)audioEl.play().catch(()=>{});
+}
+
+window.togglePlay=function(){
+  playing=!playing;
+  const icon=document.getElementById('playIcon');
+  const wrap=document.getElementById('playerArtWrap');
+  if(playing){
+    icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>';
+    wrap.classList.add('player-spinning');
+    if(!audioEl)loadTrack(cur_track);else audioEl.play().catch(()=>{});
+  }else{
+    icon.innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';
+    wrap.classList.remove('player-spinning');
+    if(audioEl)audioEl.pause();
+  }
+};
+window.nextTrack=function(){
+  if(shuffleOn){let n;do{n=Math.floor(Math.random()*TRACKS.length);}while(n===cur_track&&TRACKS.length>1);cur_track=n;}
+  else cur_track=(cur_track+1)%TRACKS.length;
+  loadTrack(cur_track);
+};
+window.prevTrack=function(){
+  if(audioEl&&audioEl.currentTime>3){audioEl.currentTime=0;return;}
+  cur_track=(cur_track-1+TRACKS.length)%TRACKS.length;loadTrack(cur_track);
+};
+window.seekTo=function(e){
+  if(!audioEl)return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  const p=Math.max(0,Math.min(100,((e.clientX-rect.left)/rect.width)*100));
+  document.getElementById('progressFill').style.width=p+'%';
+  if(audioEl.duration)audioEl.currentTime=(p/100)*audioEl.duration;
+};
+window.toggleShuffle=function(){shuffleOn=!shuffleOn;document.getElementById('btnShuffle').classList.toggle('active-ctrl',shuffleOn);};
+window.toggleRepeat=function(){repeatOn=!repeatOn;document.getElementById('btnRepeat').classList.toggle('active-ctrl',repeatOn);};
+document.getElementById('volSlider')?.addEventListener('input',e=>{if(audioEl)audioEl.volume=e.target.value/100;});
+
+let ytMode=false;
+window.togglePlaybackMode=function(){
+  ytMode=!ytMode;
+  const mp3=document.getElementById('mp3PlayerWrap');
+  const yt=document.getElementById('youtubeLiveContainer');
+  const btn=document.getElementById('toggleModeBtn');
+  if(ytMode){
+    if(audioEl&&playing){audioEl.pause();playing=false;document.getElementById('playIcon').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';document.getElementById('playerArtWrap').classList.remove('player-spinning');}
+    mp3.style.display='none';yt.style.display='block';btn.textContent='Volver al modo MP3';
+  }else{mp3.style.display='block';yt.style.display='none';btn.textContent='Cambiar a modo Video';}
+};
+
+/* CHAT */
+const MSGS={
+  general:[
+    {name:'Hikari',color:'pink',av:'hikari',text:'Bienvenidos a la frecuencia. Kaito ya está calentando motores.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'Que opening debería sonar primero hoy? El chat decide.'},
+    {name:'Hikari',color:'pink',av:'hikari',text:'Alguien más llora con el ending de Frieren? Pregunto por un amigo.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'Attack on Titan final season fue una obra maestra. Punto final.'},
+  ],
+  lofi:[
+    {name:'Hikari',color:'pink',av:'hikari',text:'El lofi de OtakuWave es perfecto para estudiar. Comprobado.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'Beats lentos, mente activa. Formula perfecta de madrugada.'},
+  ],
+  battle:[
+    {name:'Kaito',color:'purple',av:'kaito',text:'Quien gana: Naruto vs Ichigo? El debate eterno comienza.'},
+    {name:'Hikari',color:'pink',av:'hikari',text:'Shojo vs Shonen no es batalla, son dos universos distintos.'},
+  ],
+  openings:[
+    {name:'Hikari',color:'pink',av:'hikari',text:'Gurenge sigue siendo un 10/10 después de todos estos años.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'Unravel de Tokyo Ghoul me sigue poniendo la piel de gallina.'},
+  ],
+  comunidad:[
+    {name:'Hikari',color:'pink',av:'hikari',text:'Gracias por ser parte de OtakuWave. Ustedes son la frecuencia.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'La comunidad lo es todo. Sin ustedes no hay señal.'},
+  ]
+};
+const AUTOS={
+  general:[
+    {name:'Kaito',color:'purple',av:'kaito',text:'Alguien más en modo madrugada otaku?'},
+    {name:'Hikari',color:'pink',av:'hikari',text:'La próxima hora en la frecuencia va a estar increíble.'},
+    {name:'Kaito',color:'purple',av:'kaito',text:'Que series están viendo esta semana?'},
+    {name:'Hikari',color:'pink',av:'hikari',text:'Hay alguien que no haya llorado con Clannad?'},
+  ],
+  lofi:[{name:'Kaito',color:'purple',av:'kaito',text:'El lofi tiene algo mágico para las noches de anime.'},{name:'Hikari',color:'pink',av:'hikari',text:'Beats lentos y páginas de manga. La vida perfecta.'}],
+  battle:[{name:'Kaito',color:'purple',av:'kaito',text:'Nuevo debate: mejor villano del anime moderno?'},{name:'Hikari',color:'pink',av:'hikari',text:'Light Yagami sigue siendo el estándar de antagonistas.'}],
+  openings:[{name:'Kaito',color:'purple',av:'kaito',text:'Ponemos el opening de One Piece otra vez. Sin disculpas.'},{name:'Hikari',color:'pink',av:'hikari',text:'Fly High de Haikyuu me da energía infinita.'}],
+  comunidad:[{name:'Kaito',color:'purple',av:'kaito',text:'Compartan su recomendación del mes en el chat.'},{name:'Hikari',color:'pink',av:'hikari',text:'Cada mensaje aquí hace más grande la comunidad.'}]
+};
+let currentCh='general',autoTimer=null;
+
+function getTime(){const n=new Date();return`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;}
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+function getAv(k){return k==='kaito'?'assets/images/avatar_kaito.png':'assets/images/avatar_hikari.png';}
+
+function appendMsg(data,isUser=false){
+  const container=document.getElementById('discordMsgs');
+  if(!container)return;
+  const wrap=document.createElement('div');
+  wrap.className='msg-wrap'+(isUser?' user':'');
+  if(isUser){
+    wrap.innerHTML=`<div class="msg-body"><div class="msg-head"><span class="msg-name blue">${esc(data.name||'Tu')}</span><span class="msg-time">${getTime()}</span></div><div class="msg-text">${esc(data.text)}</div></div><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;">${(data.name||'T')[0].toUpperCase()}</div>`;
+  }else{
+    wrap.innerHTML=`<img class="msg-av" src="${getAv(data.av)}" alt="${data.name}" onerror="this.style.background='linear-gradient(135deg,var(--pink),var(--purple))';this.style.borderRadius='50%'"><div class="msg-body"><div class="msg-head"><span class="msg-name ${data.color}">${data.name}</span><span class="msg-time">${getTime()}</span></div><div class="msg-text">${esc(data.text)}</div></div>`;
+  }
+  container.appendChild(wrap);
+  container.scrollTop=container.scrollHeight;
+  const c=document.getElementById('chCount');
+  if(c)c.textContent=container.children.length+' mensajes';
+}
+
+function loadChannel(ch){
+  const c=document.getElementById('discordMsgs');
+  if(!c)return;c.innerHTML='';
+  (MSGS[ch]||MSGS.general).forEach((m,i)=>setTimeout(()=>appendMsg(m),i*130));
+}
+
+window.switchChannel=function(btn,ch,name){
+  document.querySelectorAll('.ch-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCh=ch;
+  document.getElementById('chNameDisplay').textContent='#'+name;
+  document.getElementById('chatInput').placeholder='Mensaje en #'+name;
+  loadChannel(ch);
+  clearTimeout(autoTimer);scheduleAuto();
+};
+
+window.sendUserMessage=function(){
+  const inp=document.getElementById('chatInput');
+  const nu=document.getElementById('chatUserName');
+  const text=inp.value.trim();
+  if(!text)return;
+  appendMsg({name:nu.value.trim()||'Tu',text},true);
+  inp.value='';
+  setTimeout(()=>{
+    const pool=AUTOS[currentCh]||AUTOS.general;
+    appendMsg(pool[Math.floor(Math.random()*pool.length)]);
+  },1200+Math.random()*1800);
+};
+
+document.getElementById('chatInput')?.addEventListener('keypress',e=>{if(e.key==='Enter')window.sendUserMessage();});
+
+function scheduleAuto(){
+  autoTimer=setTimeout(()=>{
+    const pool=AUTOS[currentCh]||AUTOS.general;
+    appendMsg(pool[Math.floor(Math.random()*pool.length)]);
+    scheduleAuto();
+  },6000+Math.random()*9000);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadTrack(0);
+  loadChannel('general');
+  scheduleAuto();
+});
+</script>
 </body>
 </html>
